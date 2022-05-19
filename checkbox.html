@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>checkbox框选</title>
+    <style>
+        #box {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            border: 1px solid transparent;
+        }
+
+        #box #mask {
+            display: none;
+            position: absolute;
+            border: 2px dashed #181212;
+            opacity: 0.5;
+
+        }
+
+        #box #group-checkbox {
+            margin: 30px ;
+            width: 500px;
+        }
+
+        #box #group-checkbox input {
+            width: 40px;
+            height: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="box">
+        <div id="group-checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+            <input type="checkbox">
+
+        </div>
+    </div>
+
+    <script>
+
+        window.addEventListener("load", function () {
+            var bd = document.body;
+            var box = document.getElementById('box');
+            var ipts = document.getElementsByTagName('input');
+            ipts = [...ipts];
+
+            //存储起始位置,终点位置，以及高宽
+            var frame = {
+                start_x: 0,
+                start_y: 0,
+                mask_height: 0,
+                mask_width: 0,
+                end_x: 0,
+                end_y: 0
+            }
+
+            //给body元素绑定mousedown事件
+            bd.addEventListener("mousedown", panelMouseDown);
+
+            function panelMouseDown(e) {
+                //创建mask
+                var mask = document.createElement('div');
+                box.appendChild(mask);
+                mask.setAttribute("id", "mask");
+
+                //获得鼠标位置
+                frame.start_x = e.clientX;
+                frame.start_y = e.clientY;
+                mask.style.left = frame.start_x + "px";
+                mask.style.top = frame.start_y + "px";
+
+                //显示mask元素
+                mask.style.display = "block";
+
+                //绑定mousemove和mouseup事件
+                bd.addEventListener("mousemove", panelMouseMove);
+                bd.addEventListener("mouseup", panelMouseUp);
+            }
+
+            function panelMouseMove(e) {
+                //遮罩的宽高
+                frame.end_x = e.clientX;
+                frame.end_y = e.clientY;
+                frame.mask_width = frame.end_x - frame.start_x;
+                frame.mask_height = frame.end_y - frame.start_y;
+                mask.style.left = Math.min(frame.end_x, frame.start_x) + "px";
+                mask.style.top = Math.min(frame.end_y, frame.start_x) + "px";
+
+                mask.style.width = Math.abs(frame.mask_width) + "px";
+                mask.style.height = Math.abs(frame.mask_height) + "px";
+
+                //四种情况
+                if (frame.end_x > frame.start_x && frame.end_y > frame.start_y) {
+                    mask.style.left = frame.start_x + "px";
+                    mask.style.top = frame.start_y + "px";
+                }
+                if (frame.end_x > frame.start_x && frame.end_y < frame.start_y) {
+                    mask.style.left = frame.start_x + "px";
+                    mask.style.top = frame.end_y + "px";
+                }
+                if (frame.end_x < frame.start_x && frame.end_y > frame.start_y) {
+                    mask.style.left = frame.end_x + "px";
+                    mask.style.top = frame.start_y + "px";
+                }
+                if (frame.end_x < frame.start_x && frame.end_y < frame.start_y) {
+                    mask.style.left = frame.end_x + "px";
+                    mask.style.top = frame.end_y + "px";
+                }
+
+                //遍历元素，选中的checkbox元素进行选中
+                for (var i = 0; i < ipts.length; i++) {
+                    ipts[i].checked = false;
+                    if (isItemInFrame(ipts[i])) {
+                        ipts[i].checked = true;
+                    }
+                }
+               
+            }
+
+            //清除参数
+            function panelMouseUp() {
+                mask.style.display = "none";
+                frame = {
+                    start_x: 0,
+                    start_y: 0,
+                    mask_height: 0,
+                    mask_width: 0,
+                    end_x: 0,
+                    end_y: 0
+                }
+
+                box.removeChild(mask);
+                bd.removeEventListener("mousemove", panelMouseMove);
+                bd.removeEventListener("mouseup", panelMouseUp);
+            }
+
+            function isItemInFrame(item) {
+                return !(item.offsetTop > mask.offsetTop + mask.offsetHeight ||
+                    item.offsetLeft > mask.offsetLeft + mask.offsetWidth ||
+                    mask.offsetTop > item.offsetTop + item.offsetHeight ||
+                    mask.offsetLeft > item.offsetLeft + item.offsetWidth
+                )
+            }
+        })
+    </script>
+</body>
+
+</html>
